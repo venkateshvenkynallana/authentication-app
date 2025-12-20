@@ -14,13 +14,28 @@ const Login = () => {
 
   const onSubmitHandler = (e) => {
     e.preventDefault();
+
+
     if (currentState === "sign up" && !dataSubmitted) {
       setDataSubmitted(true);
+      setCurrentState("login"); 
       return;
     }
-    login(currentState === "sign up" ? "signup" : "login", { fullName, email, password });
+    // if (currentState === "sign up") {
+    //   login("signup", { fullName, email, password });
+    //   setCurrentState("login");
+    //   setDataSubmitted(false);
+    //   return;
+    // }
 
-    Navigate('/')
+    // if (currentState === "login") {
+    //   login("login", { email, password });
+
+    //   navigate("/");
+    // }
+    // login(currentState === "login", { fullName, email, password });
+
+    navigate("/")
   }
 
   return (
@@ -32,28 +47,38 @@ const Login = () => {
           {currentState}
         </h2>
 
-        {currentState === "sign up" && !dataSubmitted && (
+        {currentState === "sign up" && (
           <input onChange={(e) => setFullName(e.target.value)} value={fullName}
             className='p-2 border border-gray-500 rounded-md focus:outline-none'
             placeholder='Full Name' type="text" required />
         )}
 
-        {!dataSubmitted && (
-          <>
-            <input onChange={(e) => setEmail(e.target.value)} value={email}
-              type="text" className='p-2 border border-gray-500 rounded-md focus:outline-none'
-              placeholder='Email ' required />
 
-            <input onChange={(e) => setPassword(e.target.value)} value={password}
-              type="text" placeholder='Enter Password' className='p-2 border border-gray-500 rounded-md focus:outline-none'
-              required />
-          </>
-        )}
+        <input onChange={(e) => setEmail(e.target.value)} value={email}
+          type="text" className='p-2 border border-gray-500 rounded-md focus:outline-none'
+          placeholder='Email ' required />
+
+        <input onChange={(e) => setPassword(e.target.value)} value={password}
+          type="text" placeholder='Enter Password' className='p-2 border border-gray-500 rounded-md focus:outline-none'
+          required />
 
         <button type='submit' className='py-3 bg-gradient-to-r from-purple-400 to-violet-600 
         text-white rounded-md cursor-pointer'>
           {currentState === "sign up" ? "Create Account" : "Login"}
         </button>
+
+        <p
+          className="text-sm cursor-pointer text-center"
+          onClick={() =>
+            setCurrentState(
+              currentState === "sign up" ? "login" : "sign up"
+            )
+          }
+        >
+          {currentState === "sign up"
+            ? "Already have an account? Login"
+            : "Don't have an account? Sign up"}
+        </p>
       </form>
     </div>
   )
