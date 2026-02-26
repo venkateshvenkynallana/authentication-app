@@ -1,87 +1,115 @@
 import React, { useState } from 'react'
-import { Navigate, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import loginBg from '../assets/login-bg.svg';
+import '../styles/Login.css';
+import { authAPI, setAuthToken, setUserData } from '../routes';
+import { toast } from 'react-toastify';
 
 const Login = () => {
 
-  //states
-  const [currentState, setCurrentState] = useState("sign up");
-  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [dataSubmitted, setDataSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const navigate = useNavigate();
 
-  const onSubmitHandler = (e) => {
+  const onSubmitHandler = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError("");
 
-
-    if (currentState === "sign up" && !dataSubmitted) {
-      setDataSubmitted(true);
-      setCurrentState("login"); 
-      return;
+    try {
+      const response = await authAPI.login({ email, password });
+      
+      // Store token and user data
+      setAuthToken(response.token);
+      setUserData(response.userData);
+      
+      // Show success toast
+      toast.success('Login successful! Welcome back!');
+      
+      // Navigate to dashboard page
+      navigate("/dashboard");
+    } catch (err) {
+      setError(err.message || 'Login failed. Please try again.');
+      // Show error toast
+      toast.error(err.message || 'Login failed. Please try again.');
+    } finally {
+      setLoading(false);
     }
-    // if (currentState === "sign up") {
-    //   login("signup", { fullName, email, password });
-    //   setCurrentState("login");
-    //   setDataSubmitted(false);
-    //   return;
-    // }
-
-    // if (currentState === "login") {
-    //   login("login", { email, password });
-
-    //   navigate("/");
-    // }
-    // login(currentState === "login", { fullName, email, password });
-
-    navigate("/")
   }
 
   return (
-    <div className="bg-[url('./src/assets/bgImage.svg')] bg-contain min-h-screen bg-cover bg-center flex items-center justify-center gap-8
-    sm:justify-evenly max-sm:flex-col backdrop-blur-2xl text-white">
-      <form onSubmit={onSubmitHandler}
-        className='border-2 bg-white/8 text-white border-gray-500 p-6 flex flex-col gap-6 rounded-lg shadow-lg'>
-        <h2 className='font-medium text-2xl flex justify-center items-center'>
-          {currentState}
-        </h2>
+    <div className="login-container">
+      
+      {/* Background */}
+      <div className="login-background">
+        <img src={loginBg} alt="" className="login-bg-image" />
+        <div className="login-background-overlay"></div>
+      </div>
+      
+      {/* Floating Effects */}
+      <div className="floating-orb orb-1"></div>
+      <div className="floating-orb orb-2"></div>
+      <div className="floating-orb orb-3"></div>
 
-        {currentState === "sign up" && (
-          <input onChange={(e) => setFullName(e.target.value)} value={fullName}
-            className='p-2 border border-gray-500 rounded-md focus:outline-none'
-            placeholder='Full Name' type="text" required />
-        )}
+      {/* Main Login Card */}
+      <div className="login-form-container">
+        <div className="login-form-card">
 
+          <div className="login-header">
+            <div className="login-logo">
+              <svg width="40" height="40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            </div>
 
-        <input onChange={(e) => setEmail(e.target.value)} value={email}
-          type="text" className='p-2 border border-gray-500 rounded-md focus:outline-none'
-          placeholder='Email ' required />
+            <h2 className="login-title">Welcome Back</h2>
+            <p className="login-subtitle">
+              Sign in to continue to your account
+            </p>
+          </div>
 
-        <input onChange={(e) => setPassword(e.target.value)} value={password}
-          type="text" placeholder='Enter Password' className='p-2 border border-gray-500 rounded-md focus:outline-none'
-          required />
+          <form onSubmit={onSubmitHandler} className="login-form">
 
-        <button type='submit' className='py-3 bg-gradient-to-r from-purple-400 to-violet-600 
-        text-white rounded-md cursor-pointer'>
-          {currentState === "sign up" ? "Create Account" : "Login"}
-        </button>
+            <div className="form-group">
+              <label className="form-label">Email Address</label>
+              <input 
+                type="email"
+                className="form-input"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
 
-        <p
-          className="text-sm cursor-pointer text-center"
-          onClick={() =>
-            setCurrentState(
-              currentState === "sign up" ? "login" : "sign up"
-            )
-          }
-        >
-          {currentState === "sign up"
-            ? "Already have an account? Login"
-            : "Don't have an account? Sign up"}
-        </p>
-      </form>
+            <div className="form-group">
+              <label className="form-label">Password</label>
+              <input 
+                type="password"
+                className="form-input"
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+
+            {error && <div className="error-message" style={{ color: 'red', marginBottom: '15px', textAlign: 'center' }}>{error}</div>}
+
+            <button type="submit" className="login-button" disabled={loading}>
+              {loading ? 'Signing In...' : 'Sign In'}
+            </button>
+
+          </form>
+
+        </div>
+      </div>
     </div>
   )
 }
 
-export default Login
+export default Login;
